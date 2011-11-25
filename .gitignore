@@ -1,0 +1,6 @@
+# Don't track makepkg dirs
+pkg/
+src/
+
+# Don't track generated packages
+*.tar.xz
