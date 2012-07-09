@@ -6,8 +6,8 @@
 #
 
 pkgname=emacs-nox-bzr
-pkgver=106510
-pkgrel=2
+pkgver=108437
+pkgrel=1
 pkgdesc='GNU Emacs from official Bzr repository without X11 support'
 arch=('i686' 'x86_64')
 url='http://www.gnu.org/software/emacs/'
@@ -50,7 +50,7 @@ build() {
     sed -i "s|\"/usr/libexec/emacs.*$|\"/usr/lib/emacs/\"|g" src/epaths.h
 
     make bootstrap
-    make prefix=${pkgdir}/usr archlibdir=${pkgdir}/usr/lib/emacs/${pkgver}
+    make
     make DESTDIR=${pkgdir} install
 
     msg "Cleaning up..."
@@ -59,6 +59,12 @@ build() {
     mv ${pkgdir}/usr/bin/{etags,etags.emacs}
     mv ${pkgdir}/usr/share/man/man1/{etags.1,etags.emacs.1}.gz
     mv ${pkgdir}/usr/share/man/man1/{ctags.1,ctags.emacs.1}.gz
+
+    # This is mostly superfluous, and conflicts with texinfo
+    rm $pkgdir/usr/share/info/info.info.gz
+    rm $pkgdir/usr/share/info/dir
+
+
     #fix all the 777 perms on directories
     find ${pkgdir}/usr/share/emacs -type d -exec chmod 755 {} \;
     #fix user/root permissions on usr/share files
@@ -75,6 +81,6 @@ build() {
     rm -rf ${pkgdir}/usr/share/{applications,icons}
 
     #get rid of the package's info directory, install-info adds entries for us at install-time
-    rm ${pkgdir}/usr/share/info/dir
-    gzip -9nf ${pkgdir}/usr/share/info/*
+    # rm ${pkgdir}/usr/share/info/dir
+    # gzip -9nf ${pkgdir}/usr/share/info/*
 }
