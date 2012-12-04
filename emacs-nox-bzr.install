@@ -7,6 +7,7 @@ nxml-mode org pcl-cvs pgg rcirc reftex remember sasl sc semantic ses
 sieve smtpmail speedbar tramp url vip viper widget woman)
 
 post_install() {
+  [[ -x /usr/bin/install-info ]] || return 0
   for f in ${INFO_FILES[@]}; do
     install-info ${INFO_DIR}/$f.info.gz ${INFO_DIR}/dir 2> /dev/null
   done
@@ -17,6 +18,7 @@ post_upgrade() {
 }
 
 pre_remove() {
+  [[ -x /usr/bin/install-info ]] || return 0
   for f in ${INFO_FILES[@]}; do
     install-info --delete ${INFO_DIR}/$f.info.gz ${INFO_DIR}/dir 2> /dev/null
   done
