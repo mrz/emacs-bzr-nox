@@ -12,7 +12,7 @@ pkgdesc='GNU Emacs from official Bzr repository without X11 support'
 arch=('arm' 'i686' 'x86_64')
 url='http://www.gnu.org/software/emacs/'
 license=('GPL3')
-depends=('dbus-core' 'perl' 'gpm' 'gnutls' 'libxml2')
+depends=('dbus-core' 'perl' 'ncurses')
 makedepends=('bzr' 'pkgconfig' 'texinfo')
 provides=('emacs')
 conflicts=('emacs' 'emacs-nox' 'emacs-otf' 'emacs-cvs' 'emacs-git' 'emacs-bzr')
@@ -47,7 +47,7 @@ build() {
         --without-sound
 
     # we don't want to use /usr/libexec
-    sed -i "s|\"/usr/libexec/emacs.*$|\"/usr/lib/emacs/\"|g" src/epaths.h
+    #sed -i "s|\"/usr/libexec/emacs.*$|\"/usr/lib/emacs/\"|g" src/epaths.h
 
     make bootstrap
     make
@@ -64,7 +64,6 @@ build() {
     rm $pkgdir/usr/share/info/info.info.gz
     rm $pkgdir/usr/share/info/dir
 
-
     #fix all the 777 perms on directories
     find ${pkgdir}/usr/share/emacs -type d -exec chmod 755 {} \;
     #fix user/root permissions on usr/share files
@@ -73,14 +72,8 @@ build() {
     chmod 775 ${pkgdir}/var/games
     chmod 775 ${pkgdir}/var/games/emacs
     chmod 664 ${pkgdir}/var/games/emacs/*
-    chown -R root:50 ${pkgdir}/var/games
+    chown -R root:games ${pkgdir}/var/games
 
-    #remove empty files
-    rm -rf ${pkgdir}/usr/var
     #remove .desktop file and icons
     rm -rf ${pkgdir}/usr/share/{applications,icons}
-
-    #get rid of the package's info directory, install-info adds entries for us at install-time
-    # rm ${pkgdir}/usr/share/info/dir
-    # gzip -9nf ${pkgdir}/usr/share/info/*
 }
