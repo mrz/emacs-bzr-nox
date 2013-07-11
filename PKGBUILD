@@ -22,7 +22,11 @@ install=$pkgname.install
 _bzrtrunk='http://bzr.savannah.gnu.org/r/emacs/trunk'
 _bzrmod='emacs'
 
-build() {
+pkgver() {
+  bzr revno "$_bzrtrunk"
+}
+
+prepare() {
     cd $srcdir
     msg "Connecting to Savannah..."
 
@@ -33,7 +37,9 @@ build() {
         bzr co --lightweight -v $_bzrtrunk $_bzrmod
         msg "Checkout done or server timeout"
     fi
+}
 
+build() {
     # Copy source to separate build directory and cd into it
     cp -urT $_bzrmod/ ${_bzrmod}-build
     cd ${_bzrmod}-build
@@ -43,18 +49,20 @@ build() {
         --libexecdir=/usr/lib \
         --sysconfdir=/etc \
         --localstatedir=/var \
+        --mandir=/usr/share/man \
         --without-x \
         --without-sound
 
-    # we don't want to use /usr/libexec
-    #sed -i "s|\"/usr/libexec/emacs.*$|\"/usr/lib/emacs/\"|g" src/epaths.h
-
     make bootstrap
     make
+}
+package() {
+    cd ${_bzrmod}-build
+
     make DESTDIR=${pkgdir} install
 
     msg "Cleaning up..."
-    #remove conflict with ctags package
+    # Remove conflict with ctags package
     mv ${pkgdir}/usr/bin/{ctags,ctags.emacs}
     mv ${pkgdir}/usr/bin/{etags,etags.emacs}
     mv ${pkgdir}/usr/share/man/man1/{etags.1,etags.emacs.1}.gz
@@ -64,16 +72,16 @@ build() {
     rm $pkgdir/usr/share/info/info.info.gz
     rm $pkgdir/usr/share/info/dir
 
-    #fix all the 777 perms on directories
+    # Fix all the 777 perms on directories
     find ${pkgdir}/usr/share/emacs -type d -exec chmod 755 {} \;
     #fix user/root permissions on usr/share files
     find ${pkgdir}/usr/share/emacs -exec chown root.root {} \;
-    # fix perms on /var/games
+    # Fix perms on /var/games
     chmod 775 ${pkgdir}/var/games
     chmod 775 ${pkgdir}/var/games/emacs
     chmod 664 ${pkgdir}/var/games/emacs/*
     chown -R root:games ${pkgdir}/var/games
 
-    #remove .desktop file and icons
+    # Remove .desktop file and icons
     rm -rf ${pkgdir}/usr/share/{applications,icons}
 }
